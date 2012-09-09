@@ -79,9 +79,10 @@ module Mongoid
         def changes_with_relations
           _changes = self.changes.dup
 
-          _changes.delete(:version)
-          _changes.delete(:updated_at)
-          _changes.delete(:created_at)
+          %w{version updated_at created_at}.each do |col|
+            _changes.delete(col)
+            _changes.delete(col.to_sym)
+          end
 
           relation_changes = {}
           self.embedded_relations.each do |name, details|

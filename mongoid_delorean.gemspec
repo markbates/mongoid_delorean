@@ -8,8 +8,8 @@ Gem::Specification.new do |gem|
   gem.version       = Mongoid::Delorean::VERSION
   gem.authors       = ["Mark Bates"]
   gem.email         = ["mark@markbates.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{A simple Mongoid 3 versioning system that works with embedded documents.}
+  gem.summary       = %q{A simple Mongoid 3 versioning system that works with embedded documents.}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($/)
