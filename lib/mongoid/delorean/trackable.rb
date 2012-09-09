@@ -33,13 +33,13 @@ module Mongoid
       end
 
       def track_history?
-        @__track_changes.nil? ? true : @__track_changes
+        @__track_changes.nil? ? Mongoid::Delorean.config.track_history : @__track_changes
       end
 
       def without_history_tracking
         @__track_changes = false
         yield
-        @__track_changes = true
+        @__track_changes = Mongoid::Delorean.config.track_history
       end
 
       def revert!(version = (self.version - 1))
