@@ -1,5 +1,11 @@
-require "mongoid_delorean/version"
+require 'mongoid'
 
-module MongoidDelorean
-  # Your code goes here...
+require "mongoid/delorean/version"
+require "mongoid/delorean/history"
+require "mongoid/delorean/trackable"
+
+module Mongoid
+  module Delorean
+    
+  end
 end
