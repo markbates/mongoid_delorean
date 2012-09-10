@@ -25,7 +25,8 @@ module Mongoid
 
           Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes).inspect
           self.without_history_tracking do
-            self.update_attributes(version: _version)
+            self.version = _version
+            self.save!
           end
         end
       end
