@@ -6,6 +6,7 @@ module Mongoid
         super
         klass.field :version, type: Integer, default: 0
         klass.before_save :save_version
+        klass.send(:include, Mongoid::Delorean::Trackable::CommonInstanceMethods)
       end
 
       def versions
@@ -14,9 +15,6 @@ module Mongoid
 
       def save_version
         if self.track_history?
-          unless self.kind_of?(Mongoid::Delorean::Trackable::CommonInstanceMethods)
-            extend Mongoid::Delorean::Trackable::CommonInstanceMethods
-          end
           last_version = self.versions.last
           _version = last_version ? last_version.version + 1 : 1
 
@@ -46,36 +44,22 @@ module Mongoid
         old_version = self.versions.where(version: version).first
         if old_version
           old_version.full_attributes.each do |key, value|
-            self.send("#{key}=", value)
+            self.write_attribute(key, value)
           end
           self.save!
         end
       end
 
+      module CommonEmbeddedMethods
+        
+        def save_version
+          self._parent.save_version if self._parent.respond_to?(:save_version)
+        end
+
+      end
+
       module CommonInstanceMethods
 
-        def self.extended(klass)
-          super
-          included(klass)
-        end
-
-        def self.included(klass)
-          super
-          klass.embedded_relations.each do |name, details|
-            _klass = Kernel.const_get(details.class_name)
-            _klass.send(:include, Mongoid::Delorean::Trackable::CommonInstanceMethods)
-            _klass.after_save :save_parent_version
-          end
-        end
-
-        def save_parent_version
-          if self.embedded?
-            self._parent.save_parent_version
-          else
-            self.save_version
-          end
-        end
-        
         def changes_with_relations
           _changes = self.changes.dup
 

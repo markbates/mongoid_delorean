@@ -2,46 +2,6 @@ require 'spec_helper'
 
 describe Mongoid::Delorean::Trackable do
   
-  class Article
-    include Mongoid::Document
-    include Mongoid::Timestamps
-    include Mongoid::Delorean::Trackable
-
-    field :name, type: String
-    field :summary, type: String
-
-    embeds_many :pages
-  end
-
-  class Page
-    include Mongoid::Document
-    include Mongoid::Timestamps
-
-    field :name, type: String
-
-    embedded_in :article, inverse_of: :pages
-    embeds_many :sections
-  end
-
-  class Section
-    include Mongoid::Document
-    include Mongoid::Timestamps
-
-    field :name, type: String
-    field :body, type: String
-
-    embedded_in :page, inverse_of: :sections
-  end
-
-  class User
-    include Mongoid::Document
-    include Mongoid::Timestamps
-    include Mongoid::Delorean::Trackable
-
-    field :name, type: String
-    field :age, type: Integer
-  end
-
   context "simple document" do
   
     it "creates a history object" do
@@ -140,6 +100,7 @@ describe Mongoid::Delorean::Trackable do
         u.versions.size.should eql(3)
         u.version.should eql(3)
         u.revert!(2)
+        u.reload
         u.version.should eql(4)
         u.name.should eql("Mark")
         u.age.should eql(36)
@@ -152,6 +113,7 @@ describe Mongoid::Delorean::Trackable do
         u.versions.size.should eql(3)
         u.version.should eql(3)
         u.revert!(20)
+        u.reload
         u.version.should eql(3)
         u.name.should eql("Mark Bates")
         u.age.should eql(36)
@@ -238,6 +200,7 @@ describe Mongoid::Delorean::Trackable do
         a.pages.should_not be_empty
         a.revert!
         a.name.should eql("My Article")
+        a.reload
         a.pages.should be_empty
       end
 
@@ -263,6 +226,7 @@ describe Mongoid::Delorean::Trackable do
         a.pages.build(name: "Page 1")
         a.save!
         a.revert!(20)
+        a.reload
         a.version.should eql(2)
       end
 
