@@ -73,8 +73,8 @@ module Mongoid
           self.embedded_relations.each do |name, details|
             relation = self.send(name)
             relation_changes[name] = []
-            if relation and relation.metadata.relation == Mongoid::Relations::Embedded::One
-              relation_changes[name] = relation.changes_with_relations
+            if details.relation == Mongoid::Relations::Embedded::One
+              relation_changes[name] = relation.changes_with_relations if relation
             else
               r_changes = relation.map {|o| o.changes_with_relations}
               relation_changes[name] << r_changes unless r_changes.empty?
@@ -94,8 +94,8 @@ module Mongoid
           self.embedded_relations.each do |name, details|
             relation = self.send(name)
             relation_attrs[name] = []
-            if relation and relation.metadata.relation == Mongoid::Relations::Embedded::One
-              relation_attrs[name] = relation.attributes_with_relations
+            if details.relation == Mongoid::Relations::Embedded::One
+              relation_attrs[name] = relation.attributes_with_relations if relation
             else
               r_attrs = relation.map {|o| o.attributes_with_relations}
               relation_attrs[name] << r_attrs unless r_attrs.empty?
