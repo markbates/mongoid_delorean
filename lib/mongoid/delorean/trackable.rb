@@ -93,10 +93,10 @@ module Mongoid
           relation_attrs = {}
           self.embedded_relations.each do |name, details|
             relation = self.send(name)
-            relation_attrs[name] = []
             if details.relation == Mongoid::Relations::Embedded::One
               relation_attrs[name] = relation.attributes_with_relations if relation
             else
+              relation_attrs[name] = []
               r_attrs = relation.map {|o| o.attributes_with_relations}
               relation_attrs[name] << r_attrs unless r_attrs.empty?
               r_changes = relation.map {|o| o.changes}
