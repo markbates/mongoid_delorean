@@ -151,6 +151,12 @@ describe Mongoid::Delorean::Trackable do
 
       version = a.versions.last
       version.altered_attributes.should eql({"pages"=>[{"sections"=>[{"_id"=>[nil, section.id], "body"=>[nil, "some body text"]}]}], "version"=>[2, 3]})
+
+      footer = page.build_footer(:content => "some footer text")
+      a.save!
+
+      version = a.versions.last
+      version.altered_attributes.should eql({"pages"=>[{"sections"=>[{}], "footer"=>{"_id"=>[nil, footer.id], "content"=>[nil, "some footer text"]}}], "version"=>[3, 4]})
     end
 
     it "tracks the full set of attributes at the time of saving" do
