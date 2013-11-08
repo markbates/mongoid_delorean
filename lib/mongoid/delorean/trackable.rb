@@ -23,11 +23,8 @@ module Mongoid
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
 
-          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes).inspect
-          self.without_history_tracking do
-            self.version = _version
-            self.save!
-          end
+          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
+          self.version = _version
         end
       end
 
@@ -54,7 +51,12 @@ module Mongoid
       module CommonEmbeddedMethods
         
         def save_version
-          self._parent.save_version if self._parent.respond_to?(:save_version)
+          if self._parent.respond_to?(:save_version)
+            self._parent.save_version
+            self._parent.without_history_tracking do
+              self._parent.save!(validate: false)
+            end
+          end
         end
 
       end
