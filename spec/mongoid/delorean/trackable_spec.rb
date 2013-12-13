@@ -204,12 +204,31 @@ describe Mongoid::Delorean::Trackable do
       a = Article.new(name: "Article 1")
       a.authors.build(name: "John Doe")
       a.authors.build(name: "Jane Doe")
+      a.authors.last.influences.build(name: "Poe")
+      a.authors.last.influences.build(name: "Twain")
 
       a.save!
       a.version.should eql(1)
 
       a.authors.first.name = "Joe Blow"
       a.save!
+      a.reload
+      a.version.should eql(2)
+    end
+
+    it "saves parent versions when saving embedded documents multiple levels deep" do
+      a = Article.new(name: "Article 1")
+      page = a.pages.build(name: "Page 1")
+      section = page.sections.build(body: "some body text")
+
+      a.save!
+      a.version.should eql(1)
+
+      a.reload
+      section = a.pages.first.sections.first
+      section.body = "updated body text"
+      section.save!
+
       a.reload
       a.version.should eql(2)
     end

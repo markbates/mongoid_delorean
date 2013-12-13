@@ -42,7 +42,17 @@ class Author
 
   field :name, type: String
 
+  embeds_many :influences, cascade_callbacks: true
   embedded_in :article, inverse_of: :authors
+end
+
+class Influence
+  include Mongoid::Document
+  include Mongoid::Timestamps
+
+  field :name, type: String
+
+  embedded_in :author
 end
 
 class User

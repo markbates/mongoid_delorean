@@ -62,11 +62,15 @@ module Mongoid
         
         def save_version
           if self._parent.respond_to?(:save_version)
-            if self._parent.track_history?
-              self._parent.save_version
-              self._parent.without_history_tracking do
-                self._parent.save!(validate: false)
+            if self._parent.respond_to?(:track_history?)
+              if self._parent.track_history?
+                self._parent.save_version
+                self._parent.without_history_tracking do
+                  self._parent.save!(validate: false)
+                end
               end
+            else
+              self._parent.save_version
             end
           end
 
