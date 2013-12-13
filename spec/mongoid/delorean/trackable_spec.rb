@@ -165,12 +165,12 @@ describe Mongoid::Delorean::Trackable do
       a = Article.create!(name: "My Article")
 
       version = a.versions.first
-      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[]})
+      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[], "authors" => []})
 
       a.update_attributes(summary: "Summary about the article")
 
       version = a.versions.last
-      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>2, "name"=>"My Article", "summary"=>"Summary about the article", "pages"=>[]})
+      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>2, "name"=>"My Article", "summary"=>"Summary about the article", "pages"=>[], "authors" => []})
     end
 
     it "tracks the full set of attributes including embeds at the time of saving" do
@@ -179,12 +179,12 @@ describe Mongoid::Delorean::Trackable do
       a.save!
 
       version = a.versions.first
-      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}]})
+      version.full_attributes.should eql({"_id"=>a.id, "version"=>1, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}], "authors" => []})
 
       a.update_attributes(summary: "Summary about the article")
 
       version = a.versions.last
-      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>2, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}], "summary"=>"Summary about the article"})
+      version.full_attributes.except("created_at", "updated_at").should eql({"_id"=>a.id, "version"=>2, "name"=>"My Article", "pages"=>[{"_id"=>page.id, "name"=>"Page 1", "sections"=>[]}], "summary"=>"Summary about the article", "authors" => []})
     end
 
     it "tracks changes when an embedded document is saved" do
@@ -198,6 +198,20 @@ describe Mongoid::Delorean::Trackable do
       a.version.should eql(2)
       page = a.pages.first
       page.name.should eql("The 1st Page")
+    end
+
+    it "handles embeds with cascade callbacks" do
+      a = Article.new(name: "Article 1")
+      a.authors.build(name: "John Doe")
+      a.authors.build(name: "Jane Doe")
+
+      a.save!
+      a.version.should eql(1)
+
+      a.authors.first.name = "Joe Blow"
+      a.save!
+      a.reload
+      a.version.should eql(2)
     end
 
     it "doesn't force validations on the parent document when an embedded document is saved" do
