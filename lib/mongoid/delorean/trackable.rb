@@ -6,6 +6,7 @@ module Mongoid
         super
         klass.field :version, type: Integer, default: 0
         klass.before_save :save_version
+        klass.after_save :after_save_version
         klass.send(:include, Mongoid::Delorean::Trackable::CommonInstanceMethods)
       end
 
@@ -23,12 +24,22 @@ module Mongoid
           _changes = self.changes_with_relations.dup
           _changes.merge!("version" => [self.version_was, _version])
 
-          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes).inspect
+          Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
           self.without_history_tracking do
             self.version = _version
-            self.save!
+            unless(self.new_record?)
+              self.set(:version, _version)
+            end
           end
+
+          @__track_changes = false
         end
+
+        true
+      end
+
+      def after_save_version
+        @__track_changes = Mongoid::Delorean.config.track_history
       end
 
       def track_history?
@@ -36,9 +47,10 @@ module Mongoid
       end
 
       def without_history_tracking
+        previous_track_change = @__track_changes
         @__track_changes = false
         yield
-        @__track_changes = Mongoid::Delorean.config.track_history
+        @__track_changes = previous_track_change
       end
 
       def revert!(version = (self.version - 1))
@@ -54,7 +66,17 @@ module Mongoid
       module CommonEmbeddedMethods
         
         def save_version
-          self._parent.save_version if self._parent.respond_to?(:save_version)
+          if self._parent.respond_to?(:save_version)
+            if self._parent.respond_to?(:track_history?)
+              if self._parent.track_history?
+                self._parent.save_version
+              end
+            else
+              self._parent.save_version
+            end
+          end
+
+          true
         end
 
       end
