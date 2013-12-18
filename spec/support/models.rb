@@ -27,9 +27,17 @@ class Page
 
   embedded_in :article, inverse_of: :pages
   embeds_many :sections
+  embeds_one :footer
 end
 
+class Footer
+  include Mongoid::Document
+  include Mongoid::Timestamps
 
+  field :content, type: String
+
+  embedded_in :page
+end
 
 class User
   include Mongoid::Document
