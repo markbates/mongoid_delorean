@@ -25,7 +25,12 @@ module Mongoid
           _changes.merge!("version" => [self.version_was, _version])
 
           Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
-          self.version = _version
+          self.without_history_tracking do
+            self.version = _version
+            unless(self.new_record?)
+              self.set(:version, _version)
+            end
+          end
 
           @__track_changes = false
         end
@@ -65,9 +70,6 @@ module Mongoid
             if self._parent.respond_to?(:track_history?)
               if self._parent.track_history?
                 self._parent.save_version
-                self._parent.without_history_tracking do
-                  self._parent.save!(validate: false)
-                end
               end
             else
               self._parent.save_version
