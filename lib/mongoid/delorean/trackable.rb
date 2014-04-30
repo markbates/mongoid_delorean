@@ -29,7 +29,11 @@ module Mongoid
             self.version = _version
             # self.save!
             unless(self.new_record?)
-              self.set(version: _version)
+              if ::Mongoid.const_defined? :Observer
+                self.set(:version, _version)
+              else
+                self.set(version: _version)
+              end
             end
           end
 
