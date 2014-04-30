@@ -108,3 +108,4 @@ a.version # => 1
 * Mark Bates
 * Nick Muerdter
 * Felipe Rodrigues
+* Felipe Rodrigues de Almeida
