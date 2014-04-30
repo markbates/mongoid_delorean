@@ -27,8 +27,13 @@ module Mongoid
           Mongoid::Delorean::History.create(original_class: self.class.name, original_class_id: self.id, version: _version, altered_attributes: _changes, full_attributes: _attributes)
           self.without_history_tracking do
             self.version = _version
+            # self.save!
             unless(self.new_record?)
-              self.set(:version, _version)
+              if ::Mongoid.const_defined? :Observer
+                self.set(:version, _version)
+              else
+                self.set(version: _version)
+              end
             end
           end
 
