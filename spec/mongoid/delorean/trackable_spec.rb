@@ -155,6 +155,7 @@ describe Mongoid::Delorean::Trackable do
       version.altered_attributes.should eql({"pages"=>[{"name"=>["Page 1", "The Page 1"]}], "version"=>[1, 2]})
 
       section = page.sections.build(body: "some body text")
+      page.save!
       a.save!
 
       version = a.versions.last
