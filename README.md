@@ -1,6 +1,8 @@
 # Mongoid::Delorean
 
-A simple Mongoid 3 versioning system that works with embedded documents.
+[![Build Status](https://travis-ci.org/crafters/mongoid_delorean.svg?branch=master)](https://travis-ci.org/crafters/mongoid_delorean)
+
+A simple Mongoid 3 and 4 versioning system that works with embedded documents.
 
 Tracking document changes can be really important to a lot of systems, unfortunately all of the Mongoid versioning plugins either only work with Mongoid 2.x, don't handle embedded document changes, or worse, just don't work. `Mongoid::Delorean` solves those problems.
 
