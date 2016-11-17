@@ -11,7 +11,7 @@ module Mongoid
       end
 
       def versions
-        Mongoid::Delorean::History.where(original_class: self.class.name, original_class_id: self.id)
+        Mongoid::Delorean::History.where(original_class: self.class.name, original_class_id: self.id).order_by(version: 'asce')
       end
 
       def save_version
