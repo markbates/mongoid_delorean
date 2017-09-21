@@ -37,7 +37,7 @@ module Mongoid
             end
           end
 
-          @__track_changes = false
+          @__track_changes = true
         end
 
         true
