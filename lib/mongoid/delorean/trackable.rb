@@ -16,7 +16,7 @@ module Mongoid
 
       def save_version
         if self.track_history?
-          last_version = self.versions.last
+          last_version = self.versions.to_a.last
           _version = last_version ? last_version.version + 1 : 1
 
           _attributes = self.attributes_with_relations
