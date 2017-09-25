@@ -16,7 +16,7 @@ module Mongoid
 
       def save_version
         if self.track_history?
-          last_version = self.versions.last
+          last_version = self.versions.sort_by(&:version).last
           _version = last_version ? last_version.version + 1 : 1
 
           _attributes = self.attributes_with_relations
@@ -37,7 +37,7 @@ module Mongoid
             end
           end
 
-          @__track_changes = false
+          @__track_changes = true
         end
 
         true
@@ -91,7 +91,7 @@ module Mongoid
         def changes_with_relations
           _changes = self.changes.dup
 
-          %w{version updated_at created_at}.each do |col|
+          %w{updated_at created_at}.each do |col|
             _changes.delete(col)
             _changes.delete(col.to_sym)
           end
@@ -116,6 +116,11 @@ module Mongoid
 
         def attributes_with_relations
           _attributes = self.attributes.dup
+
+          %w{staging live}.each do |col|
+            _attributes.delete(col)
+            _attributes.delete(col.to_sym)
+          end
 
           relation_attrs = {}
           self.embedded_relations.each do |name, details|
